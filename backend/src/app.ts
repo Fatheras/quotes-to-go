@@ -1,18 +1,26 @@
+require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
+import config from 'config';
+import validateEnv from './utils/validateEnv';
+import { AppDataSource } from './utils/data-source';
 import { applicationRouter } from './application.router';
 
-const PORT: number = process.env.PORT
-    ? parseInt(process.env.PORT as string, 10)
-    : 5001;
+// connect to db
+AppDataSource.initialize()
+  .then(async () => {
+    // validate env variables
+    validateEnv();
 
-const app = express();
+    const app = express();
 
-app.use(cors());
-app.use(express.json());
+    app.use(cors());
+    app.use(express.json());
+    app.use('/applications', applicationRouter);
 
-app.use('/applications', applicationRouter);
-
-app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`);
-});
+    const PORT = config.get<number>('port');
+    app.listen(PORT, () => {
+        console.log(`Listening on port ${PORT}`);
+    });
+  })
+  .catch((error) => console.log(error));

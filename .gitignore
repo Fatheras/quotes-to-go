@@ -3,3 +3,4 @@
 **/.yarn
 **/yarn-error.log
 **/*.tsbuildinfo
+**/.env
